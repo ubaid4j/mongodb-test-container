@@ -8,10 +8,12 @@ import com.mycompany.myapp.domain.User;
 import com.mycompany.myapp.repository.UserRepository;
 import com.mycompany.myapp.security.AuthoritiesConstants;
 import com.mycompany.myapp.service.dto.AdminUserDTO;
+import com.mycompany.myapp.service.dto.UserDTO;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,6 +72,8 @@ class UserServiceIT {
         userDetails.put("given_name", DEFAULT_FIRSTNAME);
         userDetails.put("family_name", DEFAULT_LASTNAME);
         userDetails.put("picture", DEFAULT_IMAGEURL);
+
+        userRepository.save(user);
     }
 
     @Test
@@ -149,5 +153,12 @@ class UserServiceIT {
         OAuth2User user = new DefaultOAuth2User(authorities, userDetails, "sub");
 
         return new OAuth2AuthenticationToken(user, authorities, "oidc");
+    }
+
+    @Test
+    public void userTest() {
+        UserDTO userDTO = userService.get(DEFAULT_LOGIN);
+        Assertions.assertNotNull(userDTO);
+        Assertions.assertEquals(DEFAULT_LOGIN, userDTO.getLogin());
     }
 }

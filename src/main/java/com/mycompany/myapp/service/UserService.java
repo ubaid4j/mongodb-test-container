@@ -8,6 +8,7 @@ import com.mycompany.myapp.repository.UserRepository;
 import com.mycompany.myapp.security.SecurityUtils;
 import com.mycompany.myapp.service.dto.AdminUserDTO;
 import com.mycompany.myapp.service.dto.UserDTO;
+import com.mycompany.myapp.service.mapper.UserMapper;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -36,10 +37,18 @@ public class UserService {
 
     private final CacheManager cacheManager;
 
-    public UserService(UserRepository userRepository, AuthorityRepository authorityRepository, CacheManager cacheManager) {
+    private final UserMapper userMapper;
+
+    public UserService(
+        UserRepository userRepository,
+        AuthorityRepository authorityRepository,
+        CacheManager cacheManager,
+        UserMapper userMapper
+    ) {
         this.userRepository = userRepository;
         this.authorityRepository = authorityRepository;
         this.cacheManager = cacheManager;
+        this.userMapper = userMapper;
     }
 
     /**
@@ -229,5 +238,13 @@ public class UserService {
         if (user.getEmail() != null) {
             Objects.requireNonNull(cacheManager.getCache(UserRepository.USERS_BY_EMAIL_CACHE)).evict(user.getEmail());
         }
+    }
+
+    public void save(User user) {
+        userRepository.save(user);
+    }
+
+    public UserDTO get(String login) {
+        return userRepository.findOneByLogin(login).map(userMapper::userToUserDTO).orElseThrow();
     }
 }
